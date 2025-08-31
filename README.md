@@ -1,6 +1,6 @@
 # JMeter Live Dashboard Listener
 
-A JMeter plugin that provides real-time dashboard visualization for your performance tests. This plugin generates a live JTL file that can be consumed by an HTML dashboard for real-time monitoring.
+A JMeter plugin that provides real-time dashboard visualization for your performance tests. This plugin generates a live JTL file that can be consumed by an HTML dashboard for real-time monitoring OR you can load existing jtl's to generate report later.
 
 ## Features
 
@@ -32,7 +32,7 @@ mvn clean package
 1. Add the **Advanced JMeter Dashboard** to your test plan (Add → Listeners → Advanced JMeter Dashboard)
 2. Run your test
 3. Click the **"🌐 Open Live Dashboard"** button in the listener
-4. In the opened dashboard, click **"📡 Load Live Data"** to start real-time monitoring
+4. In the opened dashboard, click **"📡 Load Live Data"** to start real-time monitoring on this url `http://localhost:8080/jmeter-dashboard.html`
 
 ## Dashboard Features
 
@@ -67,6 +67,7 @@ mvn clean package
 1. **Live Data Generation**: The JMeter listener writes test results to `live-dashboard.jtl` in real-time
 2. **Dashboard Integration**: The HTML dashboard fetches this file periodically when in live mode
 3. **Real-time Visualization**: Charts and tables update automatically as new data arrives
+4. **Post Test Dashboard Creation**: Just oprn `jmeter-dashboard.html` and browse your jtl file to view the report.
 
 ## Project Structure
 
@@ -80,28 +81,21 @@ mvn clean package
 └── pom.xml                               # Maven configuration
 ```
 
-## Maven Build Profiles
-
-- **Development** (default): `mvn clean package`
-- **Production**: `mvn clean package -Pprod`
-
-Note: Distribution ZIP generation has been removed for cleaner builds.
 
 ## Requirements
 
 - Java 8 or higher
 - Apache JMeter 5.6.2 or compatible
 - Maven 3.6+ (for building)
-- Modern web browser (for dashboard)
+- Chrome/Firefox
 
 ## Browser Compatibility
 
-The dashboard works with modern browsers that support:
+The dashboard works with modern browsers that support: (tested with Chrome/Firefox)
 - ES6 JavaScript features
 - Canvas API (for chart rendering)
 - Fetch API (for live data loading)
 
-Tested on: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
 
 ## Troubleshooting
 
