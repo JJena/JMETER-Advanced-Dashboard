@@ -1,0 +1,1831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced JMeter Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-input-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-wrapper:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .file-input-wrapper span {
+            cursor: pointer;
+            pointer-events: none;
+        }
+
+        .export-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .period-filter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .period-filter label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .period-filter select {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            padding: 8px 12px;
+            color: #2c3e50;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .maximize-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .maximize-btn:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 95%;
+            height: 90%;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .modal-chart {
+            width: 100%;
+            height: calc(100% - 60px);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3498db;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-card:nth-child(1) { border-left-color: #34495e; }
+        .metric-card:nth-child(2) { border-left-color: #3498db; }
+        .metric-card:nth-child(3) { border-left-color: #2ecc71; }
+        .metric-card:nth-child(4) { border-left-color: #e74c3c; }
+        .metric-card:nth-child(5) { border-left-color: #f39c12; }
+        .metric-card:nth-child(6) { border-left-color: #9b59b6; }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+
+        .test-time-card .test-time-info {
+            margin-bottom: 10px;
+        }
+
+        .test-time-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .test-time-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .test-time-label {
+            font-weight: bold;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+
+        .test-time-value {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 11px;
+        }
+
+        .stats-table {
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .stats-table h3 {
+            background: #34495e;
+            color: white;
+            padding: 15px 20px;
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 400px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 12px;
+        }
+
+        th {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .error-row {
+            background: white;
+            color: #e74c3c;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+
+
+        .chart-container h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 16px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        .error-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .error-section h3 {
+            background: #e74c3c;
+            color: white;
+            padding: 15px 20px;
+            margin: 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #7f8c8d;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>
+                📊 Advanced JMeter Dashboard
+            </h1>
+            <div class="file-input-section">
+                <div class="file-input-wrapper" onclick="triggerFileInput()">
+                    <input type="file" id="jtlFile" accept=".jtl,.csv" onchange="handleFileUpload(event)">
+                    <span id="fileInputLabel">Choose JTL File...</span>
+                </div>
+                <button class="export-btn" onclick="loadLiveData()" id="liveBtn">📡 Load Live Data</button>
+                <div class="period-filter">
+                    <label for="periodSelect">Time Period:</label>
+                    <select id="periodSelect" onchange="handlePeriodChange()">
+                        <option value="5" selected>5s</option>
+                        <option value="10">10s</option>
+                        <option value="30">30s</option>
+                        <option value="60">1min</option>
+                        <option value="300">5min</option>
+                        <option value="600">10min</option>
+                        <option value="900">15min</option>
+                    </select>
+                </div>
+                <button class="export-btn" onclick="exportToImage()">Export to Image</button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Processing JTL file...</p>
+        </div>
+
+        <div id="dashboard-content">
+            <!-- Metrics Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card test-time-card">
+                    <div class="test-time-info">
+                        <div class="test-time-item">
+                            <span class="test-time-label">Start:</span>
+                            <span class="test-time-value" id="testStartTime">-</span>
+                        </div>
+                        <div class="test-time-item">
+                            <span class="test-time-label">End:</span>
+                            <span class="test-time-value" id="testEndTime">-</span>
+                        </div>
+                        <div class="test-time-item">
+                            <span class="test-time-label">Duration:</span>
+                            <span class="test-time-value" id="testDuration">-</span>
+                        </div>
+                    </div>
+                    <div class="metric-label">Test Timeline</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="totalSamples">-</div>
+                    <div class="metric-label">Total Samples</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="errorRate">-</div>
+                    <div class="metric-label">Error Rate</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="avgResponseTime">-</div>
+                    <div class="metric-label">Avg Response Time</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="throughput">-</div>
+                    <div class="metric-label">Throughput/sec</div>
+                </div>
+            </div>
+
+            <!-- Detailed Statistics Table -->
+            <div class="stats-table">
+                <h3>📋 Detailed Statistics by Request</h3>
+                <div class="table-wrapper">
+                    <table id="statsTable">
+                        <thead>
+                            <tr>
+                                <th>Request Label</th>
+                                <th>Samples</th>
+                                <th>Error</th>
+                                <th>Error %</th>
+                                <th>Average (ms)</th>
+                                <th>Median (ms)</th>
+                                <th>90th Pct (ms)</th>
+                                <th>95th Pct (ms)</th>
+                                <th>99th Pct (ms)</th>
+                                <th>Min (ms)</th>
+                                <th>Max (ms)</th>
+                                <th>Throughput</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statsTableBody">
+                            <tr>
+                                <td colspan="12" style="text-align: center; padding: 40px; color: #7f8c8d;">
+                                    📁 Please upload a JTL file to view detailed statistics
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <!-- Response Time Over Time -->
+                <div class="chart-container">
+                    <button class="maximize-btn" onclick="maximizeChart('responseTimeChart', 'Average Response Time Over Time')">⛶</button>
+                    <h3>📈 Average Response Time Over Time</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="responseTimeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Response Time by Sampler -->
+                <div class="chart-container">
+                    <button class="maximize-btn" onclick="maximizeChart('samplerChart', 'Average Response Time by Sampler')">⛶</button>
+                    <h3>📊 Average Response Time by Sampler</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="samplerChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Avg Response Time By Sampler -->
+                <div class="chart-container">
+                    <button class="maximize-btn" onclick="maximizeChart('individualResponseChart', 'Avg Response Time By Sampler')">⛶</button>
+                    <h3>📈 Avg Response Time By Sampler</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="individualResponseChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Throughput Over Time -->
+                <div class="chart-container">
+                    <button class="maximize-btn" onclick="maximizeChart('throughputChart', 'Throughput Over Time')">⛶</button>
+                    <h3>🚀 Throughput Over Time</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="throughputChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Active Threads Over Time -->
+                <div class="chart-container">
+                    <button class="maximize-btn" onclick="maximizeChart('threadsChart', 'Active Threads Over Time')">⛶</button>
+                    <h3>👥 Active Threads Over Time</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="threadsChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Response Codes Distribution -->
+                <div class="chart-container">
+                    <button class="maximize-btn" onclick="maximizeChart('responseCodesChart', 'Response Codes Distribution')">⛶</button>
+                    <h3>🎯 Response Codes Distribution</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="responseCodesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Response Time Percentiles -->
+                <div class="chart-container">
+                    <button class="maximize-btn" onclick="maximizeChart('percentilesChart', 'Response Time Percentiles Over Time')">⛶</button>
+                    <h3>📊 Response Time Percentiles Over Time</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="percentilesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- HTTP Codes Over Time -->
+                <div class="chart-container">
+                    <button class="maximize-btn" onclick="maximizeChart('httpCodesTimeChart', 'HTTP Codes Over Time')">⛶</button>
+                    <h3>🔢 HTTP Codes Over Time</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="httpCodesTimeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Details Table -->
+            <div class="error-section">
+                <h3>❌ Detailed Errors</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sampler</th>
+                                <th>Response Code</th>
+                                <th>Error Message</th>
+                                <th>Error Count</th>
+                                <th>Error %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 40px; color: #7f8c8d;">
+                                    📁 Please upload a JTL file to view error details
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for maximized charts -->
+    <div id="chartModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <h3 id="modalTitle"></h3>
+            <div class="modal-chart">
+                <canvas id="modalChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dashboardData = {
+            samples: [],
+            summary: {},
+            charts: {}
+        };
+
+        // Initialize charts
+        let charts = {};
+        let modalChart = null;
+        let currentPeriodSeconds = 5; // Default to 5 seconds
+        let isProcessingFile = false; // Flag to prevent duplicate processing
+        let isLiveMode = false; // Flag for live data mode
+        let liveDataInterval = null; // Interval for live data refresh
+
+        function initializeCharts() {
+            // Initialize empty charts that will be populated when JTL is uploaded
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            };
+
+            // Response Time Over Time Chart
+            const responseTimeCtx = document.getElementById('responseTimeChart').getContext('2d');
+            charts.responseTime = new Chart(responseTimeCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Response Time (ms)',
+                        data: [],
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Response Time (ms)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Response Time by Sampler (Horizontal Bar Chart)
+            const samplerCtx = document.getElementById('samplerChart').getContext('2d');
+            charts.sampler = new Chart(samplerCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Average Response Time (ms)',
+                        data: [],
+                        backgroundColor: []
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Average Response Time (ms)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Throughput Chart
+            const throughputCtx = document.getElementById('throughputChart').getContext('2d');
+            charts.throughput = new Chart(throughputCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Throughput (req/s)',
+                        data: [],
+                        borderColor: '#9b59b6',
+                        backgroundColor: 'rgba(155, 89, 182, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Throughput (req/s)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Active Threads Chart
+            const threadsCtx = document.getElementById('threadsChart').getContext('2d');
+            charts.threads = new Chart(threadsCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Active Threads',
+                        data: [],
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.3)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Active Threads'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Response Codes Pie Chart
+            const codesCtx = document.getElementById('responseCodesChart').getContext('2d');
+            charts.responseCodes = new Chart(codesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: ['#2ecc71', '#e74c3c', '#f39c12', '#3498db', '#9b59b6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Response Time Percentiles Chart
+            const percentilesCtx = document.getElementById('percentilesChart').getContext('2d');
+            charts.percentiles = new Chart(percentilesCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            align: 'start'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Response Time (ms)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Avg Response Time By Sampler Chart (Time Series)
+            const individualResponseCtx = document.getElementById('individualResponseChart').getContext('2d');
+            charts.individualResponse = new Chart(individualResponseCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            align: 'start'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Average Response Time (ms)'
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 4,
+                            hoverRadius: 6
+                        }
+                    }
+                }
+            });
+
+            // HTTP Codes Over Time Chart
+            const httpCodesTimeCtx = document.getElementById('httpCodesTimeChart').getContext('2d');
+            charts.httpCodesTime = new Chart(httpCodesTimeCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            align: 'start'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Request Count'
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 4,
+                            hoverRadius: 6
+                        }
+                    }
+                }
+            });
+        }
+
+
+
+        function triggerFileInput() {
+            if (isProcessingFile) {
+                return; // Prevent multiple triggers while processing
+            }
+            const fileInput = document.getElementById('jtlFile');
+            fileInput.click();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file || isProcessingFile) {
+                return;
+            }
+
+            isProcessingFile = true;
+
+            // Update file name in UI
+            const fileName = file.name.length > 30 ? file.name.substring(0, 30) + '...' : file.name;
+            document.getElementById('fileInputLabel').textContent = fileName;
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('dashboard-content').style.display = 'none';
+
+            // Process file
+            setTimeout(() => {
+                processJTLFile(file);
+            }, 500);
+        }
+
+        function processJTLFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                const content = e.target.result;
+                parseJTLContent(content);
+                updateDashboard();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard-content').style.display = 'block';
+                } catch (error) {
+                    console.error('Error processing JTL file:', error);
+                    alert('Error processing JTL file. Please check the file format.');
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('dashboard-content').style.display = 'block';
+                } finally {
+                    isProcessingFile = false; // Reset the flag
+                    // Clear the file input to allow re-selecting the same file
+                    document.getElementById('jtlFile').value = '';
+                }
+            };
+            
+            reader.onerror = function() {
+                console.error('Error reading file');
+                alert('Error reading file. Please try again.');
+                isProcessingFile = false;
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard-content').style.display = 'block';
+                document.getElementById('jtlFile').value = '';
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function parseJTLContent(content) {
+            const lines = content.split('\n');
+            if (lines.length < 2) {
+                alert('Invalid JTL file format');
+                return;
+            }
+            
+            const headers = lines[0].split(',').map(h => h.trim());
+            
+            dashboardData.samples = [];
+            const samplerStats = {};
+            const timeData = {};
+            const responseCodes = {};
+            const errorDetails = {};
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                const values = lines[i].split(',');
+                if (values.length !== headers.length) continue;
+                
+                const sample = {};
+                headers.forEach((header, index) => {
+                    sample[header] = values[index] ? values[index].trim() : '';
+                });
+                
+                dashboardData.samples.push(sample);
+                
+                // Get sample data using correct JTL column names
+                const label = sample.label || 'Unknown';
+                const responseTime = parseInt(sample.elapsed || sample.Elapsed || 0);
+                const timestamp = parseInt(sample.timeStamp || sample.TimeStamp || 0);
+                const success = (sample.success === 'true' || sample.Success === 'true');
+                const responseCode = sample.responseCode || sample.ResponseCode || 'Unknown';
+                const responseMessage = sample.responseMessage || sample.ResponseMessage || '';
+                const threads = parseInt(sample.allThreads || sample.AllThreads || 1);
+                const latency = parseInt(sample.Latency || sample.latency || 0);
+                
+                // Calculate stats per sampler
+                if (!samplerStats[label]) {
+                    samplerStats[label] = {
+                        count: 0,
+                        errors: 0,
+                        totalTime: 0,
+                        responseTimes: [],
+                        minTime: Number.MAX_SAFE_INTEGER,
+                        maxTime: 0
+                    };
+                }
+                
+                samplerStats[label].count++;
+                samplerStats[label].totalTime += responseTime;
+                samplerStats[label].responseTimes.push(responseTime);
+                samplerStats[label].minTime = Math.min(samplerStats[label].minTime, responseTime);
+                samplerStats[label].maxTime = Math.max(samplerStats[label].maxTime, responseTime);
+                
+                if (!success) {
+                    samplerStats[label].errors++;
+                    
+                    // Track error details
+                    const errorKey = `${label}-${responseCode}`;
+                    if (!errorDetails[errorKey]) {
+                        errorDetails[errorKey] = {
+                            sampler: label,
+                            responseCode,
+                            message: responseMessage || 'No failure message',
+                            count: 0
+                        };
+                    }
+                    errorDetails[errorKey].count++;
+                }
+                
+                // Track response codes
+                if (!responseCodes[responseCode]) {
+                    responseCodes[responseCode] = 0;
+                }
+                responseCodes[responseCode]++;
+                
+                // Time-based data for charts
+                const timeKey = Math.floor(timestamp / (currentPeriodSeconds * 1000)) * (currentPeriodSeconds * 1000); // Group by selected period
+                if (!timeData[timeKey]) {
+                    timeData[timeKey] = {
+                        responseTimes: [],
+                        requests: 0,
+                        threads: 0,
+                        timestamp: timeKey
+                    };
+                }
+                timeData[timeKey].responseTimes.push(responseTime);
+                timeData[timeKey].requests++;
+                timeData[timeKey].threads = Math.max(timeData[timeKey].threads, threads);
+            }
+            
+            dashboardData.samplerStats = samplerStats;
+            dashboardData.timeData = Object.values(timeData).sort((a, b) => a.timestamp - b.timestamp);
+            dashboardData.responseCodes = responseCodes;
+            dashboardData.errorDetails = Object.values(errorDetails);
+            
+            calculateSummaryStats();
+        }
+
+        function calculateSummaryStats() {
+            const stats = dashboardData.samplerStats;
+            let totalSamples = 0;
+            let totalErrors = 0;
+            let totalTime = 0;
+            
+            Object.values(stats).forEach(stat => {
+                totalSamples += stat.count;
+                totalErrors += stat.errors;
+                totalTime += stat.totalTime;
+            });
+            
+            // Calculate test timeline from samples
+            let testStartTime = null;
+            let testEndTime = null;
+            let testDuration = '-';
+            
+            if (dashboardData.samples && dashboardData.samples.length > 0) {
+                const timestamps = dashboardData.samples.map(sample => parseInt(sample.timeStamp || 0)).filter(ts => ts > 0);
+                if (timestamps.length > 0) {
+                    testStartTime = Math.min(...timestamps);
+                    testEndTime = Math.max(...timestamps);
+                    
+                    const durationMs = testEndTime - testStartTime;
+                    testDuration = formatDuration(durationMs);
+                }
+            }
+            
+            // Calculate throughput from time data
+            let throughput = 0;
+            if (dashboardData.timeData && dashboardData.timeData.length > 1) {
+                const timeSpanSeconds = (dashboardData.timeData[dashboardData.timeData.length - 1].timestamp - 
+                                       dashboardData.timeData[0].timestamp) / 1000;
+                if (timeSpanSeconds > 0) {
+                    throughput = (totalSamples / timeSpanSeconds).toFixed(2);
+                }
+            }
+            
+            dashboardData.summary = {
+                totalSamples,
+                totalErrors,
+                errorRate: totalSamples > 0 ? (totalErrors / totalSamples * 100).toFixed(2) : '0.00',
+                avgResponseTime: totalSamples > 0 ? Math.round(totalTime / totalSamples) : 0,
+                throughput: throughput || '0.00',
+                testStartTime: testStartTime ? new Date(testStartTime).toLocaleString() : '-',
+                testEndTime: testEndTime ? new Date(testEndTime).toLocaleString() : '-',
+                testDuration: testDuration
+            };
+        }
+
+        function formatDuration(milliseconds) {
+            if (milliseconds <= 0) return '-';
+            
+            const seconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${seconds % 60}s`;
+            } else {
+                return `${seconds}s`;
+            }
+        }
+
+        function updateDashboard() {
+            const summary = dashboardData.summary;
+            
+            // Update test timeline
+            document.getElementById('testStartTime').textContent = summary.testStartTime;
+            document.getElementById('testEndTime').textContent = summary.testEndTime;
+            document.getElementById('testDuration').textContent = summary.testDuration;
+            
+            // Update metrics
+            document.getElementById('totalSamples').textContent = summary.totalSamples.toLocaleString();
+            document.getElementById('errorRate').textContent = summary.errorRate + '%';
+            document.getElementById('avgResponseTime').textContent = summary.avgResponseTime + ' ms';
+            document.getElementById('throughput').textContent = summary.throughput;
+            
+            updateStatsTable();
+            updateCharts();
+        }
+
+        function updateStatsTable() {
+            const tbody = document.getElementById('statsTableBody');
+            tbody.innerHTML = '';
+            
+            // Calculate overall percentiles and min/max
+            let allResponseTimes = [];
+            let overallMinTime = Number.MAX_SAFE_INTEGER;
+            let overallMaxTime = 0;
+            
+            // Collect all response times from all samplers
+            Object.values(dashboardData.samplerStats).forEach(stats => {
+                allResponseTimes = allResponseTimes.concat(stats.responseTimes);
+                if (stats.minTime < overallMinTime && stats.minTime !== Number.MAX_SAFE_INTEGER) {
+                    overallMinTime = stats.minTime;
+                }
+                if (stats.maxTime > overallMaxTime) {
+                    overallMaxTime = stats.maxTime;
+                }
+            });
+            
+            // Calculate overall percentiles
+            const sortedOverallTimes = allResponseTimes.sort((a, b) => a - b);
+            const overallMedian = sortedOverallTimes.length > 0 ? calculatePercentile(sortedOverallTimes, 50) : 0;
+            const overallPct90 = sortedOverallTimes.length > 0 ? calculatePercentile(sortedOverallTimes, 90) : 0;
+            const overallPct95 = sortedOverallTimes.length > 0 ? calculatePercentile(sortedOverallTimes, 95) : 0;
+            const overallPct99 = sortedOverallTimes.length > 0 ? calculatePercentile(sortedOverallTimes, 99) : 0;
+            
+            // Fix overall min/max values
+            const finalOverallMinTime = overallMinTime === Number.MAX_SAFE_INTEGER ? 0 : overallMinTime;
+            
+            // Add OVERALL row first
+            const overallRow = document.createElement('tr');
+            overallRow.innerHTML = `
+                <td><strong>OVERALL</strong></td>
+                <td><strong>${dashboardData.summary.totalSamples.toLocaleString()}</strong></td>
+                <td><strong>${dashboardData.summary.totalErrors.toLocaleString()}</strong></td>
+                <td><strong>${dashboardData.summary.errorRate}%</strong></td>
+                <td><strong>${dashboardData.summary.avgResponseTime}</strong></td>
+                <td><strong>${overallMedian}</strong></td>
+                <td><strong>${overallPct90}</strong></td>
+                <td><strong>${overallPct95}</strong></td>
+                <td><strong>${overallPct99}</strong></td>
+                <td><strong>${finalOverallMinTime}</strong></td>
+                <td><strong>${overallMaxTime}</strong></td>
+                <td><strong>${dashboardData.summary.throughput}</strong></td>
+            `;
+            tbody.appendChild(overallRow);
+            
+            // Add individual sampler rows
+            Object.entries(dashboardData.samplerStats).forEach(([label, stats]) => {
+                const row = document.createElement('tr');
+                const errorRate = stats.count > 0 ? (stats.errors / stats.count * 100).toFixed(2) : '0.00';
+                const avgTime = stats.count > 0 ? Math.round(stats.totalTime / stats.count) : 0;
+                
+                // Calculate throughput for this sampler
+                let samplerThroughput = '0.00';
+                if (dashboardData.samples && dashboardData.samples.length > 0) {
+                    // Get timestamps for this specific sampler
+                    const samplerTimestamps = dashboardData.samples
+                        .filter(sample => sample.label === label)
+                        .map(sample => parseInt(sample.timeStamp || 0))
+                        .filter(ts => ts > 0);
+                    
+                    if (samplerTimestamps.length > 1) {
+                        const minTime = Math.min(...samplerTimestamps);
+                        const maxTime = Math.max(...samplerTimestamps);
+                        const timeSpanSeconds = (maxTime - minTime) / 1000;
+                        
+                        if (timeSpanSeconds > 0) {
+                            samplerThroughput = (samplerTimestamps.length / timeSpanSeconds).toFixed(2);
+                        }
+                    }
+                }
+                
+                // Calculate percentiles
+                const sortedTimes = stats.responseTimes.sort((a, b) => a - b);
+                const median = sortedTimes.length > 0 ? calculatePercentile(sortedTimes, 50) : 0;
+                const pct90 = sortedTimes.length > 0 ? calculatePercentile(sortedTimes, 90) : 0;
+                const pct95 = sortedTimes.length > 0 ? calculatePercentile(sortedTimes, 95) : 0;
+                const pct99 = sortedTimes.length > 0 ? calculatePercentile(sortedTimes, 99) : 0;
+                
+                // Fix min/max values
+                const minTime = stats.minTime === Number.MAX_SAFE_INTEGER ? 0 : stats.minTime;
+                const maxTime = stats.maxTime;
+                
+                if (parseFloat(errorRate) > 0) {
+                    row.classList.add('error-row');
+                }
+                
+                row.innerHTML = `
+                    <td>${label}</td>
+                    <td>${stats.count.toLocaleString()}</td>
+                    <td>${stats.errors.toLocaleString()}</td>
+                    <td>${errorRate}%</td>
+                    <td>${avgTime}</td>
+                    <td>${median}</td>
+                    <td>${pct90}</td>
+                    <td>${pct95}</td>
+                    <td>${pct99}</td>
+                    <td>${minTime}</td>
+                    <td>${maxTime}</td>
+                    <td>${samplerThroughput}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        function calculatePercentile(sortedArray, percentile) {
+            if (sortedArray.length === 0) return 0;
+            const index = (percentile / 100) * (sortedArray.length - 1);
+            const lower = Math.floor(index);
+            const upper = Math.ceil(index);
+            const weight = index % 1;
+            
+            if (upper >= sortedArray.length) return sortedArray[sortedArray.length - 1];
+            return Math.round(sortedArray[lower] * (1 - weight) + sortedArray[upper] * weight);
+        }
+
+        function updateCharts() {
+            updateResponseTimeChart();
+            updateSamplerChart();
+            updateIndividualResponseChart();
+            updateThroughputChart();
+            updateThreadsChart();
+            updateResponseCodesChart();
+            updatePercentilesChart();
+            updateHttpCodesTimeChart();
+            updateErrorTable();
+        }
+
+        function updateResponseTimeChart() {
+            const timeLabels = [];
+            const responseTimeData = [];
+            
+            dashboardData.timeData.forEach(timePoint => {
+                const date = new Date(timePoint.timestamp);
+                timeLabels.push(date.toLocaleTimeString());
+                
+                const avgResponseTime = timePoint.responseTimes.length > 0 ? 
+                    timePoint.responseTimes.reduce((a, b) => a + b, 0) / timePoint.responseTimes.length : 0;
+                responseTimeData.push(Math.round(avgResponseTime));
+            });
+            
+            charts.responseTime.data.labels = timeLabels;
+            charts.responseTime.data.datasets[0].data = responseTimeData;
+            charts.responseTime.update();
+        }
+
+        function updateSamplerChart() {
+            const samplerLabels = [];
+            const samplerData = [];
+            const colors = [];
+            
+            // Sort samplers by average response time (descending)
+            const sortedSamplers = Object.entries(dashboardData.samplerStats)
+                .map(([label, stats]) => ({
+                    label,
+                    avgTime: stats.count > 0 ? Math.round(stats.totalTime / stats.count) : 0,
+                    errorRate: stats.count > 0 ? (stats.errors / stats.count * 100) : 0
+                }))
+                .sort((a, b) => b.avgTime - a.avgTime)
+                .slice(0, 10); // Top 10 slowest
+            
+            sortedSamplers.forEach(sampler => {
+                samplerLabels.push(sampler.label.length > 30 ? sampler.label.substring(0, 30) + '...' : sampler.label);
+                samplerData.push(sampler.avgTime);
+                colors.push(sampler.errorRate > 0 ? '#e74c3c' : '#2ecc71');
+            });
+            
+            charts.sampler.data.labels = samplerLabels;
+            charts.sampler.data.datasets[0].data = samplerData;
+            charts.sampler.data.datasets[0].backgroundColor = colors;
+            charts.sampler.update();
+        }
+
+        function updateIndividualResponseChart() {
+            if (!dashboardData.timeData || dashboardData.timeData.length === 0) {
+                return;
+            }
+            
+            const samplerLabels = Object.keys(dashboardData.samplerStats);
+            const datasets = [];
+            const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#34495e', '#95a5a6'];
+            
+            // Create time labels
+            const timeLabels = dashboardData.timeData.map(timePoint => {
+                const date = new Date(timePoint.timestamp);
+                return date.toLocaleTimeString();
+            });
+            
+            // Calculate average response time per sampler for each time period
+            samplerLabels.forEach((samplerLabel, index) => {
+                const color = colors[index % colors.length];
+                const dataPoints = [];
+                
+                // For each time period, calculate average response time for this sampler
+                dashboardData.timeData.forEach(timePoint => {
+                    // Find all samples for this sampler in this time period
+                    const samplerResponseTimes = [];
+                    
+                    // Filter samples by timestamp range and sampler label
+                    dashboardData.samples.forEach(sample => {
+                        const sampleTime = parseInt(sample.timeStamp || 0);
+                        const sampleLabel = sample.label || '';
+                        
+                        // Check if sample is within current time period and matches sampler
+                        if (sampleLabel === samplerLabel) {
+                            const timePeriodStart = timePoint.timestamp;
+                            const timePeriodEnd = timePeriodStart + (currentPeriodSeconds * 1000);
+                            
+                            if (sampleTime >= timePeriodStart && sampleTime < timePeriodEnd) {
+                                const responseTime = parseInt(sample.elapsed || 0);
+                                samplerResponseTimes.push(responseTime);
+                            }
+                        }
+                    });
+                    
+                    // Calculate average for this time period
+                    if (samplerResponseTimes.length > 0) {
+                        const avgResponseTime = samplerResponseTimes.reduce((sum, time) => sum + time, 0) / samplerResponseTimes.length;
+                        dataPoints.push(Math.round(avgResponseTime));
+                    } else {
+                        dataPoints.push(null); // No data for this time period
+                    }
+                });
+                
+                // Only add dataset if it has some data
+                if (dataPoints.some(point => point !== null)) {
+                    datasets.push({
+                        label: samplerLabel.length > 25 ? samplerLabel.substring(0, 25) + '...' : samplerLabel,
+                        data: dataPoints,
+                        borderColor: color,
+                        backgroundColor: color + '20', // 20% opacity
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        spanGaps: true // Connect lines across null values
+                    });
+                }
+            });
+            
+            // Update the chart
+            charts.individualResponse.data.labels = timeLabels;
+            charts.individualResponse.data.datasets = datasets;
+            charts.individualResponse.update();
+        }
+
+        function updateThroughputChart() {
+            const timeLabels = [];
+            const throughputData = [];
+            
+            dashboardData.timeData.forEach(timePoint => {
+                const date = new Date(timePoint.timestamp);
+                timeLabels.push(date.toLocaleTimeString());
+                // Convert to requests per second based on the current period
+                const throughputPerSecond = (timePoint.requests / currentPeriodSeconds).toFixed(2);
+                throughputData.push(parseFloat(throughputPerSecond));
+            });
+            
+            charts.throughput.data.labels = timeLabels;
+            charts.throughput.data.datasets[0].data = throughputData;
+            charts.throughput.update();
+        }
+
+        function updateThreadsChart() {
+            const timeLabels = [];
+            const threadsData = [];
+            
+            dashboardData.timeData.forEach(timePoint => {
+                const date = new Date(timePoint.timestamp);
+                timeLabels.push(date.toLocaleTimeString());
+                threadsData.push(timePoint.threads);
+            });
+            
+            charts.threads.data.labels = timeLabels;
+            charts.threads.data.datasets[0].data = threadsData;
+            charts.threads.update();
+        }
+
+        function updateResponseCodesChart() {
+            const codes = Object.keys(dashboardData.responseCodes);
+            const counts = Object.values(dashboardData.responseCodes);
+            
+            charts.responseCodes.data.labels = codes;
+            charts.responseCodes.data.datasets[0].data = counts;
+            charts.responseCodes.update();
+        }
+
+        function updatePercentilesChart() {
+            if (dashboardData.timeData.length === 0) return;
+            
+            const timeLabels = [];
+            const pct50Data = [];
+            const pct90Data = [];
+            const pct95Data = [];
+            const pct99Data = [];
+            
+            dashboardData.timeData.forEach(timePoint => {
+                const date = new Date(timePoint.timestamp);
+                timeLabels.push(date.toLocaleTimeString());
+                
+                const sortedTimes = timePoint.responseTimes.sort((a, b) => a - b);
+                pct50Data.push(calculatePercentile(sortedTimes, 50));
+                pct90Data.push(calculatePercentile(sortedTimes, 90));
+                pct95Data.push(calculatePercentile(sortedTimes, 95));
+                pct99Data.push(calculatePercentile(sortedTimes, 99));
+            });
+            
+            charts.percentiles.data.labels = timeLabels;
+            charts.percentiles.data.datasets = [
+                {
+                    label: '50th Percentile',
+                    data: pct50Data,
+                    borderColor: '#3498db',
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: '90th Percentile',
+                    data: pct90Data,
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: '95th Percentile',
+                    data: pct95Data,
+                    borderColor: '#f39c12',
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: '99th Percentile',
+                    data: pct99Data,
+                    borderColor: '#9b59b6',
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    fill: false
+                }
+            ];
+            charts.percentiles.update();
+        }
+
+        function updateHttpCodesTimeChart() {
+            if (!dashboardData.timeData || dashboardData.timeData.length === 0) {
+                return;
+            }
+            
+            // Get all unique HTTP codes from the data
+            const allHttpCodes = [...new Set(dashboardData.samples.map(sample => sample.responseCode || '200'))];
+            const colors = ['#2ecc71', '#e74c3c', '#f39c12', '#3498db', '#9b59b6', '#1abc9c', '#34495e', '#95a5a6'];
+            
+            // Create time labels
+            const timeLabels = dashboardData.timeData.map(timePoint => {
+                const date = new Date(timePoint.timestamp);
+                return date.toLocaleTimeString();
+            });
+            
+            const datasets = [];
+            
+            // Create a dataset for each HTTP code
+            allHttpCodes.forEach((httpCode, index) => {
+                const color = colors[index % colors.length];
+                const dataPoints = [];
+                
+                // For each time period, count occurrences of this HTTP code
+                dashboardData.timeData.forEach(timePoint => {
+                    let codeCount = 0;
+                    
+                    // Count samples with this HTTP code in this time period
+                    dashboardData.samples.forEach(sample => {
+                        const sampleTime = parseInt(sample.timeStamp || 0);
+                        const sampleCode = sample.responseCode || '200';
+                        
+                        if (sampleCode === httpCode) {
+                            const timePeriodStart = timePoint.timestamp;
+                            const timePeriodEnd = timePeriodStart + (currentPeriodSeconds * 1000);
+                            
+                            if (sampleTime >= timePeriodStart && sampleTime < timePeriodEnd) {
+                                codeCount++;
+                            }
+                        }
+                    });
+                    
+                    dataPoints.push(codeCount);
+                });
+                
+                // Only add dataset if it has some data
+                if (dataPoints.some(count => count > 0)) {
+                    datasets.push({
+                        label: `HTTP ${httpCode}`,
+                        data: dataPoints,
+                        borderColor: color,
+                        backgroundColor: color + '20', // 20% opacity
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        borderWidth: 2
+                    });
+                }
+            });
+            
+            // Sort datasets to show success codes first, then errors
+            datasets.sort((a, b) => {
+                const codeA = parseInt(a.label.replace('HTTP ', ''));
+                const codeB = parseInt(b.label.replace('HTTP ', ''));
+                
+                // Success codes (2xx, 3xx) first, then errors (4xx, 5xx)
+                if (codeA < 400 && codeB >= 400) return -1;
+                if (codeA >= 400 && codeB < 400) return 1;
+                return codeA - codeB;
+            });
+            
+            // Update the chart
+            charts.httpCodesTime.data.labels = timeLabels;
+            charts.httpCodesTime.data.datasets = datasets;
+            charts.httpCodesTime.update();
+        }
+
+        function updateErrorTable() {
+            const errorTableBody = document.querySelector('.error-section tbody');
+            errorTableBody.innerHTML = '';
+            
+            if (dashboardData.errorDetails.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #2ecc71;">
+                        ✅ No errors found in the JTL file
+                    </td>
+                `;
+                errorTableBody.appendChild(row);
+                return;
+            }
+            
+            // Sort errors by count (descending)
+            dashboardData.errorDetails
+                .sort((a, b) => b.count - a.count)
+                .forEach(error => {
+                    const errorRate = dashboardData.summary.totalSamples > 0 ? 
+                        (error.count / dashboardData.summary.totalSamples * 100).toFixed(2) : '0.00';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${error.sampler}</td>
+                        <td>${error.responseCode}</td>
+                        <td>${error.message}</td>
+                        <td>${error.count.toLocaleString()}</td>
+                        <td>${errorRate}%</td>
+                    `;
+                    errorTableBody.appendChild(row);
+                });
+        }
+
+        function handlePeriodChange() {
+            const selectElement = document.getElementById('periodSelect');
+            currentPeriodSeconds = parseInt(selectElement.value);
+            
+            if (dashboardData.samples && dashboardData.samples.length > 0) {
+                // Re-process the data with new period
+                parseJTLContentFromSamples();
+                updateCharts();
+            }
+        }
+
+        function parseJTLContentFromSamples() {
+            // Re-calculate time-based data with new period
+            const timeData = {};
+            
+            dashboardData.samples.forEach(sample => {
+                const timestamp = parseInt(sample.timeStamp || 0);
+                const responseTime = parseInt(sample.elapsed || 0);
+                const threads = parseInt(sample.allThreads || 1);
+                
+                const timeKey = Math.floor(timestamp / (currentPeriodSeconds * 1000)) * (currentPeriodSeconds * 1000);
+                if (!timeData[timeKey]) {
+                    timeData[timeKey] = {
+                        responseTimes: [],
+                        requests: 0,
+                        threads: 0,
+                        timestamp: timeKey
+                    };
+                }
+                timeData[timeKey].responseTimes.push(responseTime);
+                timeData[timeKey].requests++;
+                timeData[timeKey].threads = Math.max(timeData[timeKey].threads, threads);
+            });
+            
+            dashboardData.timeData = Object.values(timeData).sort((a, b) => a.timestamp - b.timestamp);
+        }
+
+        function maximizeChart(chartId, title) {
+            const modal = document.getElementById('chartModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalCanvas = document.getElementById('modalChart');
+            
+            modalTitle.textContent = title;
+            modal.style.display = 'block';
+            
+            // Map chart IDs to chart objects
+            const chartMapping = {
+                'responseTimeChart': charts.responseTime,
+                'samplerChart': charts.sampler,
+                'individualResponseChart': charts.individualResponse,
+                'throughputChart': charts.throughput,
+                'threadsChart': charts.threads,
+                'responseCodesChart': charts.responseCodes,
+                'percentilesChart': charts.percentiles,
+                'httpCodesTimeChart': charts.httpCodesTime
+            };
+            
+            const originalChart = chartMapping[chartId];
+            if (originalChart) {
+                // Destroy existing modal chart if any
+                if (modalChart) {
+                    modalChart.destroy();
+                }
+                
+                modalChart = new Chart(modalCanvas, {
+                    type: originalChart.config.type,
+                    data: JSON.parse(JSON.stringify(originalChart.data)),
+                    options: {
+                        ...JSON.parse(JSON.stringify(originalChart.config.options)),
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('chartModal');
+            modal.style.display = 'none';
+            
+            if (modalChart) {
+                modalChart.destroy();
+                modalChart = null;
+            }
+        }
+
+        // Close modal when clicking outside of it or pressing Escape
+        window.onclick = function(event) {
+            const modal = document.getElementById('chartModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        function loadLiveData() {
+            if (isLiveMode) {
+                // Stop live mode
+                stopLiveMode();
+            } else {
+                // Start live mode
+                startLiveMode();
+            }
+        }
+
+        function startLiveMode() {
+            isLiveMode = true;
+            document.getElementById('liveBtn').textContent = '⏹️ Stop Live';
+            document.getElementById('liveBtn').style.backgroundColor = '#e74c3c';
+            
+            // Disable file input
+            document.getElementById('jtlFile').disabled = true;
+            
+            // Load initial data
+            loadLiveJTLFile();
+            
+            // Set up auto-refresh every 5 seconds
+            liveDataInterval = setInterval(loadLiveJTLFile, 5000);
+            
+            console.log('Live mode started - refreshing every 5 seconds');
+        }
+
+        function stopLiveMode() {
+            isLiveMode = false;
+            document.getElementById('liveBtn').textContent = '📡 Load Live Data';
+            document.getElementById('liveBtn').style.backgroundColor = '#e74c3c';
+            
+            // Enable file input
+            document.getElementById('jtlFile').disabled = false;
+            
+            // Clear interval
+            if (liveDataInterval) {
+                clearInterval(liveDataInterval);
+                liveDataInterval = null;
+            }
+            
+            console.log('Live mode stopped');
+        }
+
+        function loadLiveJTLFile() {
+            // Try to load live-dashboard.jtl from the same directory
+            fetch('live-dashboard.jtl')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(content => {
+                    if (content.trim()) {
+                        parseJTLContent(content);
+                        updateDashboard();
+                        updateFileLabel('live-dashboard.jtl (Live)');
+                        
+                        // Show dashboard content
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('dashboard-content').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading live JTL file:', error);
+                    if (isLiveMode) {
+                        updateFileLabel('Live data not available - Check JMeter listener');
+                    }
+                });
+        }
+
+        function updateFileLabel(filename) {
+            document.getElementById('fileInputLabel').textContent = filename;
+        }
+
+        function exportToImage() {
+            // Store original table styles
+            const tableWrappers = document.querySelectorAll('.table-wrapper');
+            const originalStyles = [];
+            
+            // Temporarily remove height limits and scrolling from tables
+            tableWrappers.forEach((wrapper, index) => {
+                originalStyles[index] = {
+                    maxHeight: wrapper.style.maxHeight,
+                    overflow: wrapper.style.overflow,
+                    height: wrapper.style.height
+                };
+                
+                wrapper.style.maxHeight = 'none';
+                wrapper.style.overflow = 'visible';
+                wrapper.style.height = 'auto';
+            });
+            
+            // Wait a moment for layout to adjust
+            setTimeout(() => {
+                const dashboardContainer = document.querySelector('.dashboard-container');
+                
+                html2canvas(dashboardContainer, {
+                    scale: 1.5,
+                useCORS: true,
+                    allowTaint: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: dashboardContainer.scrollWidth,
+                    windowHeight: dashboardContainer.scrollHeight,
+                    backgroundColor: '#ffffff'
+            }).then(canvas => {
+                    // Create download link
+                    const link = document.createElement('a');
+                    link.download = `jmeter-dashboard-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`;
+                    link.href = canvas.toDataURL('image/png', 1.0);
+                    
+                    // Trigger download
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Restore original table styles
+                    tableWrappers.forEach((wrapper, index) => {
+                        const original = originalStyles[index];
+                        wrapper.style.maxHeight = original.maxHeight;
+                        wrapper.style.overflow = original.overflow;
+                        wrapper.style.height = original.height;
+                    });
+                }).catch(error => {
+                    console.error('Error generating image:', error);
+                    alert('Error generating image. Please try again.');
+                    
+                    // Restore original table styles even on error
+                    tableWrappers.forEach((wrapper, index) => {
+                        const original = originalStyles[index];
+                        wrapper.style.maxHeight = original.maxHeight;
+                        wrapper.style.overflow = original.overflow;
+                        wrapper.style.height = original.height;
+                    });
+                });
+            }, 100);
+        }
+
+        // Initialize the dashboard
+        window.onload = function() {
+            initializeCharts();
+        };
+    </script>
+</body>
+</html>

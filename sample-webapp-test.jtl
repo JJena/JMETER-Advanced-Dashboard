@@ -1,0 +1,77 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Filename,latency,encoding,SampleCount,ErrorCount,Hostname,IdleTime,Connect
+1704067200000,120,01-Login Page,200,OK,Thread Group 1-1,text,true,,2456,842,1,1,https://webapp.example.com/login,,115,UTF-8,1,0,localhost,0,45
+1704067201000,85,02-Login Submit,200,OK,Thread Group 1-1,text,true,,1234,567,1,1,https://webapp.example.com/auth/login,,80,UTF-8,1,0,localhost,0,0
+1704067202000,95,03-Dashboard,200,OK,Thread Group 1-1,text,true,,3456,234,1,1,https://webapp.example.com/dashboard,,90,UTF-8,1,0,localhost,0,0
+1704067203000,150,04-User Profile,200,OK,Thread Group 1-1,text,true,,2890,345,1,1,https://webapp.example.com/profile,,145,UTF-8,1,0,localhost,0,0
+1704067204000,220,05-Data Export API,200,OK,Thread Group 1-1,text,true,,15678,123,1,1,https://webapp.example.com/api/export,,215,UTF-8,1,0,localhost,0,0
+1704067205000,110,01-Login Page,200,OK,Thread Group 1-2,text,true,,2456,842,2,2,https://webapp.example.com/login,,105,UTF-8,1,0,localhost,0,42
+1704067206000,78,02-Login Submit,200,OK,Thread Group 1-2,text,true,,1234,567,2,2,https://webapp.example.com/auth/login,,75,UTF-8,1,0,localhost,0,0
+1704067207000,165,03-Dashboard,200,OK,Thread Group 1-2,text,true,,3456,234,2,2,https://webapp.example.com/dashboard,,160,UTF-8,1,0,localhost,0,0
+1704067208000,89,04-User Profile,200,OK,Thread Group 1-2,text,true,,2890,345,2,2,https://webapp.example.com/profile,,85,UTF-8,1,0,localhost,0,0
+1704067209000,195,05-Data Export API,200,OK,Thread Group 1-2,text,true,,15678,123,2,2,https://webapp.example.com/api/export,,190,UTF-8,1,0,localhost,0,0
+1704067210000,125,01-Login Page,200,OK,Thread Group 1-3,text,true,,2456,842,3,3,https://webapp.example.com/login,,120,UTF-8,1,0,localhost,0,48
+1704067211000,92,02-Login Submit,401,Unauthorized,Thread Group 1-3,text,false,Invalid credentials,567,567,3,3,https://webapp.example.com/auth/login,,90,UTF-8,1,1,localhost,0,0
+1704067212000,88,02-Login Submit,200,OK,Thread Group 1-3,text,true,,1234,567,3,3,https://webapp.example.com/auth/login,,85,UTF-8,1,0,localhost,0,0
+1704067213000,135,03-Dashboard,200,OK,Thread Group 1-3,text,true,,3456,234,3,3,https://webapp.example.com/dashboard,,130,UTF-8,1,0,localhost,0,0
+1704067214000,175,04-User Profile,200,OK,Thread Group 1-3,text,true,,2890,345,3,3,https://webapp.example.com/profile,,170,UTF-8,1,0,localhost,0,0
+1704067215000,245,05-Data Export API,200,OK,Thread Group 1-3,text,true,,15678,123,3,3,https://webapp.example.com/api/export,,240,UTF-8,1,0,localhost,0,0
+1704067216000,98,06-Settings Page,200,OK,Thread Group 1-1,text,true,,1890,234,3,3,https://webapp.example.com/settings,,95,UTF-8,1,0,localhost,0,0
+1704067217000,156,07-Update Settings,200,OK,Thread Group 1-1,text,true,,567,789,3,3,https://webapp.example.com/api/settings,,150,UTF-8,1,0,localhost,0,0
+1704067218000,67,08-Logout,200,OK,Thread Group 1-1,text,true,,234,123,3,3,https://webapp.example.com/logout,,65,UTF-8,1,0,localhost,0,0
+1704067219000,102,06-Settings Page,200,OK,Thread Group 1-2,text,true,,1890,234,2,2,https://webapp.example.com/settings,,98,UTF-8,1,0,localhost,0,0
+1704067220000,189,07-Update Settings,500,Internal Server Error,Thread Group 1-2,text,false,Database connection timeout,0,789,2,2,https://webapp.example.com/api/settings,,0,UTF-8,1,1,localhost,0,0
+1704067221000,145,07-Update Settings,200,OK,Thread Group 1-2,text,true,,567,789,2,2,https://webapp.example.com/api/settings,,140,UTF-8,1,0,localhost,0,0
+1704067222000,75,08-Logout,200,OK,Thread Group 1-2,text,true,,234,123,2,2,https://webapp.example.com/logout,,72,UTF-8,1,0,localhost,0,0
+1704067223000,115,06-Settings Page,200,OK,Thread Group 1-3,text,true,,1890,234,1,1,https://webapp.example.com/settings,,110,UTF-8,1,0,localhost,0,0
+1704067224000,167,07-Update Settings,200,OK,Thread Group 1-3,text,true,,567,789,1,1,https://webapp.example.com/api/settings,,162,UTF-8,1,0,localhost,0,0
+1704067225000,82,08-Logout,200,OK,Thread Group 1-3,text,true,,234,123,1,1,https://webapp.example.com/logout,,78,UTF-8,1,0,localhost,0,0
+1704067226000,130,01-Login Page,200,OK,Thread Group 1-4,text,true,,2456,842,1,1,https://webapp.example.com/login,,125,UTF-8,1,0,localhost,0,52
+1704067227000,95,02-Login Submit,200,OK,Thread Group 1-4,text,true,,1234,567,1,1,https://webapp.example.com/auth/login,,90,UTF-8,1,0,localhost,0,0
+1704067228000,185,03-Dashboard,200,OK,Thread Group 1-4,text,true,,3456,234,1,1,https://webapp.example.com/dashboard,,180,UTF-8,1,0,localhost,0,0
+1704067229000,125,09-Reports Page,200,OK,Thread Group 1-4,text,true,,4567,345,1,1,https://webapp.example.com/reports,,120,UTF-8,1,0,localhost,0,0
+1704067230000,298,10-Generate Report,200,OK,Thread Group 1-4,text,true,,23456,567,1,1,https://webapp.example.com/api/reports/generate,,290,UTF-8,1,0,localhost,0,0
+1704067231000,145,11-Download Report,200,OK,Thread Group 1-4,text,true,,156789,123,1,1,https://webapp.example.com/api/reports/download,,140,UTF-8,1,0,localhost,0,0
+1704067232000,88,08-Logout,200,OK,Thread Group 1-4,text,true,,234,123,1,1,https://webapp.example.com/logout,,85,UTF-8,1,0,localhost,0,0
+1704067233000,140,01-Login Page,200,OK,Thread Group 1-5,text,true,,2456,842,2,2,https://webapp.example.com/login,,135,UTF-8,1,0,localhost,0,58
+1704067234000,102,02-Login Submit,200,OK,Thread Group 1-5,text,true,,1234,567,2,2,https://webapp.example.com/auth/login,,98,UTF-8,1,0,localhost,0,0
+1704067235000,156,03-Dashboard,200,OK,Thread Group 1-5,text,true,,3456,234,2,2,https://webapp.example.com/dashboard,,150,UTF-8,1,0,localhost,0,0
+1704067236000,135,01-Login Page,200,OK,Thread Group 1-6,text,true,,2456,842,3,3,https://webapp.example.com/login,,130,UTF-8,1,0,localhost,0,55
+1704067237000,89,02-Login Submit,200,OK,Thread Group 1-6,text,true,,1234,567,3,3,https://webapp.example.com/auth/login,,85,UTF-8,1,0,localhost,0,0
+1704067238000,167,03-Dashboard,200,OK,Thread Group 1-6,text,true,,3456,234,3,3,https://webapp.example.com/dashboard,,162,UTF-8,1,0,localhost,0,0
+1704067239000,178,09-Reports Page,200,OK,Thread Group 1-5,text,true,,4567,345,3,3,https://webapp.example.com/reports,,175,UTF-8,1,0,localhost,0,0
+1704067240000,145,04-User Profile,200,OK,Thread Group 1-6,text,true,,2890,345,3,3,https://webapp.example.com/profile,,140,UTF-8,1,0,localhost,0,0
+1704067241000,267,10-Generate Report,200,OK,Thread Group 1-5,text,true,,23456,567,3,3,https://webapp.example.com/api/reports/generate,,260,UTF-8,1,0,localhost,0,0
+1704067242000,195,05-Data Export API,200,OK,Thread Group 1-6,text,true,,15678,123,3,3,https://webapp.example.com/api/export,,190,UTF-8,1,0,localhost,0,0
+1704067243000,156,11-Download Report,200,OK,Thread Group 1-5,text,true,,156789,123,3,3,https://webapp.example.com/api/reports/download,,150,UTF-8,1,0,localhost,0,0
+1704067244000,112,06-Settings Page,200,OK,Thread Group 1-6,text,true,,1890,234,3,3,https://webapp.example.com/settings,,108,UTF-8,1,0,localhost,0,0
+1704067245000,95,08-Logout,200,OK,Thread Group 1-5,text,true,,234,123,2,2,https://webapp.example.com/logout,,92,UTF-8,1,0,localhost,0,0
+1704067246000,178,07-Update Settings,200,OK,Thread Group 1-6,text,true,,567,789,2,2,https://webapp.example.com/api/settings,,175,UTF-8,1,0,localhost,0,0
+1704067247000,89,08-Logout,200,OK,Thread Group 1-6,text,true,,234,123,1,1,https://webapp.example.com/logout,,85,UTF-8,1,0,localhost,0,0
+1704067248000,125,01-Login Page,200,OK,Thread Group 1-7,text,true,,2456,842,1,1,https://webapp.example.com/login,,120,UTF-8,1,0,localhost,0,62
+1704067249000,98,02-Login Submit,200,OK,Thread Group 1-7,text,true,,1234,567,1,1,https://webapp.example.com/auth/login,,95,UTF-8,1,0,localhost,0,0
+1704067250000,145,03-Dashboard,200,OK,Thread Group 1-7,text,true,,3456,234,1,1,https://webapp.example.com/dashboard,,140,UTF-8,1,0,localhost,0,0
+1704067251000,234,12-Admin Panel,403,Forbidden,Thread Group 1-7,text,false,Access denied - insufficient privileges,456,234,1,1,https://webapp.example.com/admin,,0,UTF-8,1,1,localhost,0,0
+1704067252000,156,04-User Profile,200,OK,Thread Group 1-7,text,true,,2890,345,1,1,https://webapp.example.com/profile,,150,UTF-8,1,0,localhost,0,0
+1704067253000,189,05-Data Export API,404,Not Found,Thread Group 1-7,text,false,Endpoint not found,234,123,1,1,https://webapp.example.com/api/export/invalid,,0,UTF-8,1,1,localhost,0,0
+1704067254000,205,05-Data Export API,200,OK,Thread Group 1-7,text,true,,15678,123,1,1,https://webapp.example.com/api/export,,200,UTF-8,1,0,localhost,0,0
+1704067255000,78,08-Logout,200,OK,Thread Group 1-7,text,true,,234,123,1,1,https://webapp.example.com/logout,,75,UTF-8,1,0,localhost,0,0
+1704067256000,155,01-Login Page,200,OK,Thread Group 1-8,text,true,,2456,842,2,2,https://webapp.example.com/login,,150,UTF-8,1,0,localhost,0,65
+1704067257000,112,02-Login Submit,200,OK,Thread Group 1-8,text,true,,1234,567,2,2,https://webapp.example.com/auth/login,,108,UTF-8,1,0,localhost,0,0
+1704067258000,178,03-Dashboard,200,OK,Thread Group 1-8,text,true,,3456,234,2,2,https://webapp.example.com/dashboard,,175,UTF-8,1,0,localhost,0,0
+1704067259000,145,01-Login Page,200,OK,Thread Group 1-9,text,true,,2456,842,3,3,https://webapp.example.com/login,,140,UTF-8,1,0,localhost,0,68
+1704067260000,195,13-File Upload,200,OK,Thread Group 1-8,text,true,,5678,12345,3,3,https://webapp.example.com/upload,,190,UTF-8,1,0,localhost,0,0
+1704067261000,105,02-Login Submit,200,OK,Thread Group 1-9,text,true,,1234,567,3,3,https://webapp.example.com/auth/login,,100,UTF-8,1,0,localhost,0,0
+1704067262000,234,14-File Processing,200,OK,Thread Group 1-8,text,true,,1234,234,3,3,https://webapp.example.com/api/process,,230,UTF-8,1,0,localhost,0,0
+1704067263000,156,03-Dashboard,200,OK,Thread Group 1-9,text,true,,3456,234,3,3,https://webapp.example.com/dashboard,,150,UTF-8,1,0,localhost,0,0
+1704067264000,89,08-Logout,200,OK,Thread Group 1-8,text,true,,234,123,2,2,https://webapp.example.com/logout,,85,UTF-8,1,0,localhost,0,0
+1704067265000,167,09-Reports Page,200,OK,Thread Group 1-9,text,true,,4567,345,2,2,https://webapp.example.com/reports,,162,UTF-8,1,0,localhost,0,0
+1704067266000,289,10-Generate Report,200,OK,Thread Group 1-9,text,true,,23456,567,2,2,https://webapp.example.com/api/reports/generate,,285,UTF-8,1,0,localhost,0,0
+1704067267000,178,11-Download Report,200,OK,Thread Group 1-9,text,true,,156789,123,2,2,https://webapp.example.com/api/reports/download,,175,UTF-8,1,0,localhost,0,0
+1704067268000,95,08-Logout,200,OK,Thread Group 1-9,text,true,,234,123,1,1,https://webapp.example.com/logout,,92,UTF-8,1,0,localhost,0,0
+1704067269000,165,01-Login Page,200,OK,Thread Group 1-10,text,true,,2456,842,1,1,https://webapp.example.com/login,,160,UTF-8,1,0,localhost,0,72
+1704067270000,125,02-Login Submit,200,OK,Thread Group 1-10,text,true,,1234,567,1,1,https://webapp.example.com/auth/login,,120,UTF-8,1,0,localhost,0,0
+1704067271000,189,03-Dashboard,200,OK,Thread Group 1-10,text,true,,3456,234,1,1,https://webapp.example.com/dashboard,,185,UTF-8,1,0,localhost,0,0
+1704067272000,234,15-Search API,200,OK,Thread Group 1-10,text,true,,8765,456,1,1,https://webapp.example.com/api/search,,230,UTF-8,1,0,localhost,0,0
+1704067273000,145,16-Search Results,200,OK,Thread Group 1-10,text,true,,12345,234,1,1,https://webapp.example.com/search/results,,140,UTF-8,1,0,localhost,0,0
+1704067274000,312,17-Advanced Search,200,OK,Thread Group 1-10,text,true,,23456,789,1,1,https://webapp.example.com/api/search/advanced,,308,UTF-8,1,0,localhost,0,0
+1704067275000,98,08-Logout,200,OK,Thread Group 1-10,text,true,,234,123,1,1,https://webapp.example.com/logout,,95,UTF-8,1,0,localhost,0,0
