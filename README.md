@@ -1,137 +1,134 @@
-# JMeter Live Dashboard Listener
+# Advanced JMeter Dashboard with Quality Gates & System Monitoring
 
-A JMeter plugin that provides real-time dashboard visualization for your performance tests. This plugin generates a live JTL file that can be consumed by an HTML dashboard for real-time monitoring OR you can load existing jtl's to generate report later.
+A JMeter plugin providing real-time dashboard visualization with **Quality Gate Management** and **System Resource Monitoring**. Features an embedded HTTP server for live monitoring and post-test analysis.
 
-## Features
+## 🎉 What's New
 
-- 📊 **Real-time Dashboard**: Live visualization of test metrics while JMeter is running
-- 📈 **Comprehensive Charts**: Response times, throughput, active threads, HTTP codes, and more
-- 📋 **Detailed Statistics**: Per-sampler statistics with error tracking
-- 🎯 **Easy Integration**: Simple JMeter listener that works with any test plan
-- 🌐 **Web-based UI**: Modern HTML dashboard with interactive charts
-- 📱 **Responsive Design**: Works on desktop and mobile devices
-- 🔄 **Auto-refresh**: Dashboard updates automatically during test execution
-- 📸 **Export Options**: Export dashboard as PNG image
+- ✅ **Quality Gate Management**: Configure and monitor test quality thresholds
+- ✅ **Enhanced Charts**: System metrics with quality gate thresholds
+- ✅ **System Resource Monitoring**: Real-time CPU and memory tracking
+- ✅ **Embedded HTTP Server**: Pure Java implementation (no Python)
+- ✅ **Weighted Scoring**: Importance-based quality assessment
+- ✅ **Cross-platform Support**: Works on Windows, macOS, Linux
 
-## Quick Start
 
-### 1. Build the Plugin
+## 🚀 Key Features
 
+- **Real-time Dashboard**: Live visualization with auto-refresh every 5 seconds
+- **Quality Gate Management**: Configurable thresholds with weighted scoring
+- **System Resource Monitoring**: CPU/memory tracking using OSHI library
+- **Embedded HTTP Server**: Pure Java implementation (no Python required)
+
+## 🛠️ Quick Start
+
+### Prerequisites
+- Java 17 configured as JAVA_HOME
+- JMeter 5.6.2+
+- Maven 3.6+ (for building)
+
+### Installation
 ```bash
+# Build the plugin
 mvn clean package
+
+# Install to JMeter
+cp target/live-dashboard-listener-1.0.0.jar /path/to/jmeter/lib/ext/
+cp jmeter-dashboard.html /path/to/jmeter/bin/
 ```
 
-### 2. Install to JMeter
+### Usage
+1. Add **Advanced JMeter Dashboard** to your test plan
+2. Configure quality gates (optional)
+3. Run your test
+4. Click **"🌐 Open Live Dashboard"** → **"📡 Load Live Data"**
 
-1. Copy the generated JAR file from `target/live-dashboard-listener-1.0.0.jar` to your JMeter `lib/ext/` directory
-2. Copy `jmeter-dashboard.html` to your JMeter `bin/` directory
-3. Restart JMeter
+## 🎯 Quality Gate System
 
-### 3. Use in Your Test Plan
+### Available Metrics
+- **Response Time**: Average, Max, Min, 90th, 95th, 99th percentiles
+- **Throughput**: Requests per second
+- **Error Rate**: Percentage of failed requests
+- **CPU/Memory Usage**: System resource utilization
 
-1. Add the **Advanced JMeter Dashboard** to your test plan (Add → Listeners → Advanced JMeter Dashboard)
-2. Run your test
-3. Click the **"🌐 Open Live Dashboard"** button in the listener
-4. In the opened dashboard, click **"📡 Load Live Data"** to start real-time monitoring on this url `http://localhost:8080/jmeter-dashboard.html`
+### Configuration
+- **Operators**: <, >, <=, >=
+- **Pass/Warning Values**: Set thresholds for each metric
+- **Weightage**: Importance weight (0.0 to 1.0)
 
-## Dashboard Features
+### Scoring Formula
+```
+Overall Score = Σ(Base Score × Weightage) / Σ(Weightage)
+```
+- **PASS**: 100 points (Overall Score ≥ 80)
+- **WARNING**: 50 points (Overall Score ≥ 60)
+- **FAIL**: 0 points (Overall Score < 60)
 
-### Metrics Overview
-- Test timeline (start/end/duration)
-- Total samples and error rate
-- Average response time and throughput
+## 📊 System Resource Monitoring
 
-### Interactive Charts
-- **Response Time Over Time**: Average response times across test duration
-- **Avg Response Time by Sampler**: Time series showing each sampler's performance
-- **Throughput Over Time**: Requests per second trends
-- **Active Threads**: Thread count progression
-- **HTTP Codes Over Time**: Response code distribution over time
-- **Response Time Percentiles**: 50th, 90th, 95th, and 99th percentiles
-- **Response Codes Distribution**: Overall response code breakdown
+- **Metrics**: CPU usage, memory usage, used/available memory
+- **Collection**: Every 5 seconds during test execution
+- **Technology**: OSHI (cross-platform, no dependencies)
+- **Visualization**: Real-time charts with quality gate thresholds
+
+## 🌐 Dashboard Features
+
+### Charts
+- Response time over time and by sampler
+- Throughput trends and active threads
+- HTTP status codes and response time percentiles
+- CPU/memory usage with quality gate thresholds
 
 ### Data Tables
-- **Detailed Statistics by Request**: Per-sampler metrics with percentiles
-- **Detailed Errors**: Error breakdown with counts and percentages
+- Detailed statistics by request
+- Quality gate results and overall scores
+- System metrics summary
 
 ### Advanced Features
-- **Time Period Filter**: Adjust chart granularity (5s to 15min intervals, defaults to 5s)
-- **Chart Maximization**: Full-screen view for any chart
-- **Live Data Mode**: Auto-refresh every 5 seconds during test execution
-- **Image Export**: Export entire dashboard as PNG
-- **Smooth Chart Lines**: All time-series charts feature smooth curves
-- **Real-time Statistics**: Complete percentile calculations in live mode
+- Time period filtering (5s to 15min intervals)
+- Chart maximization and image export
+- Live data mode with auto-refresh
 
-## How It Works
+## 🔧 Architecture
 
-1. **Live Data Generation**: The JMeter listener writes test results to `live-dashboard.jtl` in real-time
-2. **Dashboard Integration**: The HTML dashboard fetches this file periodically when in live mode
-3. **Real-time Visualization**: Charts and tables update automatically as new data arrives
-4. **Post Test Dashboard Creation**: Just oprn `jmeter-dashboard.html` and browse your jtl file to view the report.
+1. **Embedded HTTP Server**: Java-based server (port 9090)
+2. **Live Data Generation**: Real-time JTL file writing
+3. **System Metrics Collection**: OSHI-based monitoring
+4. **Quality Gate Evaluation**: Real-time threshold checking
+5. **Dashboard Integration**: HTML dashboard with live updates
 
-## Project Structure
+## 🚨 Troubleshooting
 
-```
-├── src/main/java/
-│   └── org/apache/jmeter/visualizers/
-│       └── LiveDashboardListener.java     # JMeter listener plugin
-├── jmeter-dashboard.html                  # HTML dashboard
-├── sample-webapp-test.jtl                 # Sample test data
-├── sample-webapp-30min.jtl               # Larger sample dataset
-└── pom.xml                               # Maven configuration
-```
+### Common Issues
+- **Dashboard not loading**: Check HTTP server is running, verify port 9090
+- **Quality gates not working**: Verify configuration and check browser console
+- **System metrics missing**: Check OSHI library and file permissions
+- **Plugin not visible**: Confirm JAR in `lib/ext/`, restart JMeter
 
+### File Locations
+- JAR: `lib/ext/live-dashboard-listener-1.0.0.jar`
+- HTML: `bin/jmeter-dashboard.html`
+- Generated files: `bin/live-dashboard.jtl`, `bin/.jmeter-system-metrics.csv`
 
-## Requirements
+## 🔄 Migration Notes
 
-- Java 8 or higher
-- Apache JMeter 5.6.2 or compatible
+- **HTTP Server**: Now Java-based (no Python)
+- **Port Change**: Default port 9090 (was 8080)
+- **New Features**: Quality gates and system metrics
+
+## 📋 Requirements
+
+- Java 17+ (recommended)
+- JMeter 5.6.2+
+- Modern browser (Chrome, Firefox, Safari, Edge)
 - Maven 3.6+ (for building)
-- Chrome/Firefox
 
-## Browser Compatibility
-
-The dashboard works with modern browsers that support: (tested with Chrome/Firefox)
-- ES6 JavaScript features
-- Canvas API (for chart rendering)
-- Fetch API (for live data loading)
-
-
-## Troubleshooting
-
-### Dashboard Not Loading Live Data
-- Ensure the JMeter listener is added to your test plan
-- Check that `live-dashboard.jtl` exists in the JMeter `bin/` directory
-- For live data functionality, use HTTP server: `python3 -m http.server 8080` in JMeter bin directory
-- Open dashboard via `http://localhost:8080/jmeter-dashboard.html` for live data
-- Verify the dashboard HTML file can access the JTL file (same directory)
-
-### Charts Not Displaying
-- Check browser console for JavaScript errors
-- Ensure Chart.js library loads correctly
-- Verify JTL file format is valid
-
-### Plugin Not Visible in JMeter
-- Confirm JAR is in `lib/ext/` directory
-- Restart JMeter completely
-- Check JMeter logs for plugin loading errors
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Test with different JMeter versions
-5. Submit a pull request
+3. Make changes and test
+4. Submit a pull request
 
-## License
+## 📄 License
 
-This project is open source. Feel free to use and modify according to your needs.
-
-## Support
-
-For issues and questions:
-1. Check the troubleshooting section above
-2. Review JMeter logs for errors
-3. Ensure all files are in correct locations
-4. Verify JMeter and Java versions are compatible
+Open source - use and modify as needed.

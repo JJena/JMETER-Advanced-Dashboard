@@ -1,1 +1,6 @@
+/Users/jjena/cursor/jmeter-advanced-dashboard/src/main/java/org/apache/jmeter/visualizers/QualityGateManager.java
+/Users/jjena/cursor/jmeter-advanced-dashboard/src/main/java/org/apache/jmeter/visualizers/SystemMetricsSnapshot.java
 /Users/jjena/cursor/jmeter-advanced-dashboard/src/main/java/org/apache/jmeter/visualizers/LiveDashboardListener.java
+/Users/jjena/cursor/jmeter-advanced-dashboard/src/main/java/org/apache/jmeter/visualizers/QualityGateMetric.java
+/Users/jjena/cursor/jmeter-advanced-dashboard/src/main/java/org/apache/jmeter/visualizers/QualityGateTableModel.java
+/Users/jjena/cursor/jmeter-advanced-dashboard/src/main/java/org/apache/jmeter/visualizers/SystemMetricsCollector.java
